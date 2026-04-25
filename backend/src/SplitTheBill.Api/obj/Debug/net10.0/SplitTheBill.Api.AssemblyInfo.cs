@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SplitTheBill.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fe56adbd5b7a16068203b056883efff50296605d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+eee72273fd8eacf0ca5a3ace41e6e05a313f8182")]
 [assembly: System.Reflection.AssemblyProductAttribute("SplitTheBill.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SplitTheBill.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
