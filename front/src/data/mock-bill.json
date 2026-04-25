@@ -1,0 +1,115 @@
+{
+  "restaurant": {
+    "id": "rst_01",
+    "name": "The Amber Room",
+    "logo": "/mock/restaurant-logo.png",
+    "address": "42 Marine Drive, Mumbai 400002"
+  },
+  "table": {
+    "id": "tbl_07",
+    "number": 7,
+    "session": "sess_abc123"
+  },
+  "bill": {
+    "id": "bill_20260425_007",
+    "status": "open",
+    "createdAt": "2026-04-25T19:30:00Z",
+    "currency": "INR",
+    "items": [
+      {
+        "id": "item_01",
+        "name": "Truffle Mushroom Soup",
+        "category": "starters",
+        "quantity": 2,
+        "unitPrice": 450,
+        "subtotal": 900
+      },
+      {
+        "id": "item_02",
+        "name": "Burrata & Heirloom Tomato",
+        "category": "starters",
+        "quantity": 1,
+        "unitPrice": 650,
+        "subtotal": 650
+      },
+      {
+        "id": "item_03",
+        "name": "Pan-Seared Sea Bass",
+        "category": "mains",
+        "quantity": 1,
+        "unitPrice": 1200,
+        "subtotal": 1200
+      },
+      {
+        "id": "item_04",
+        "name": "Wagyu Steak (200g)",
+        "category": "mains",
+        "quantity": 1,
+        "unitPrice": 2800,
+        "subtotal": 2800
+      },
+      {
+        "id": "item_05",
+        "name": "Wild Mushroom Risotto",
+        "category": "mains",
+        "quantity": 1,
+        "unitPrice": 950,
+        "subtotal": 950
+      },
+      {
+        "id": "item_06",
+        "name": "Tiramisu",
+        "category": "desserts",
+        "quantity": 2,
+        "unitPrice": 550,
+        "subtotal": 1100
+      },
+      {
+        "id": "item_07",
+        "name": "Crème Brûlée",
+        "category": "desserts",
+        "quantity": 1,
+        "unitPrice": 500,
+        "subtotal": 500
+      },
+      {
+        "id": "item_08",
+        "name": "Sparkling Water (750ml)",
+        "category": "drinks",
+        "quantity": 2,
+        "unitPrice": 250,
+        "subtotal": 500
+      },
+      {
+        "id": "item_09",
+        "name": "House Red Wine (glass)",
+        "category": "drinks",
+        "quantity": 3,
+        "unitPrice": 700,
+        "subtotal": 2100
+      },
+      {
+        "id": "item_10",
+        "name": "Espresso",
+        "category": "drinks",
+        "quantity": 2,
+        "unitPrice": 200,
+        "subtotal": 400
+      }
+    ],
+    "subtotal": 11100,
+    "tax": {
+      "label": "GST (5%)",
+      "rate": 0.05,
+      "amount": 555
+    },
+    "serviceCharge": {
+      "label": "Service charge (10%)",
+      "rate": 0.10,
+      "amount": 1110
+    },
+    "total": 12765,
+    "amountPaid": 0,
+    "amountRemaining": 12765
+  }
+}
