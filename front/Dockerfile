@@ -5,7 +5,7 @@ FROM base AS deps
 WORKDIR /app
 COPY package.json ./
 COPY yarn.lock ./
-RUN yarn install
+RUN HUSKY=0 yarn install
 
 FROM base AS builder
 WORKDIR /app
