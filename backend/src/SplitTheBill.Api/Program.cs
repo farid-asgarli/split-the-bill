@@ -113,8 +113,7 @@ app.MapPost(
     }
 );
 
-// Auto-migrate and seed in development
-if (app.Environment.IsDevelopment())
+// Auto-migrate and seed on startup
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
