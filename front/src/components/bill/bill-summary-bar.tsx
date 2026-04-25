@@ -2,7 +2,13 @@
 
 import type { Bill } from "@/types/bill";
 import { useCheckout } from "@/hooks/use-checkout";
-import { CurrencyDisplay, Divider, Button } from "@/components/ui";
+import { useI18n } from "@/hooks/use-i18n";
+import {
+  CurrencyDisplay,
+  Divider,
+  Button,
+  AnimatedCurrency,
+} from "@/components/ui";
 
 interface BillSummaryBarProps {
   bill: Bill;
@@ -10,15 +16,9 @@ interface BillSummaryBarProps {
 }
 
 export function BillSummaryBar({ bill, onSplitOpen }: BillSummaryBarProps) {
-  const {
-    step,
-    tip,
-    split,
-    grandTotal,
-    payableAmount,
-    setStep,
-    clearSplit,
-  } = useCheckout();
+  const { step, tip, split, grandTotal, payableAmount, setStep, clearSplit } =
+    useCheckout();
+  const { t } = useI18n();
 
   if (step === "confirmation") return null;
 
@@ -26,7 +26,7 @@ export function BillSummaryBar({ bill, onSplitOpen }: BillSummaryBarProps) {
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface-elevated shadow-elevated pb-safe">
-      <div className="mx-auto max-w-lg space-y-2 px-4 pb-4 pt-3">
+      <div className="mx-auto max-w-lg space-y-3 px-4 pb-5 pt-4">
         {/* Line-item breakdown (bill + tip steps) */}
         {(step === "bill" || step === "tip" || step === "split") && (
           <>
@@ -34,7 +34,7 @@ export function BillSummaryBar({ bill, onSplitOpen }: BillSummaryBarProps) {
             {!isSplitting && (
               <>
                 <div className="flex items-center justify-between text-sm text-muted">
-                  <span>Subtotal</span>
+                  <span>{t("subtotal")}</span>
                   <CurrencyDisplay
                     amount={bill.subtotal}
                     currency={bill.currency}
@@ -64,11 +64,9 @@ export function BillSummaryBar({ bill, onSplitOpen }: BillSummaryBarProps) {
             {isSplitting && step === "split" && (
               <div className="flex items-center justify-between text-sm text-muted">
                 <span>
-                  Your share
+                  {t("yourShare")}
                   {split.mode === "equal" && (
-                    <span className="ml-1 text-xs">
-                      (1 of {split.headCount})
-                    </span>
+                    <span>1 {t("of")} {split.headCount}</span>
                   )}
                 </span>
                 <CurrencyDisplay
@@ -85,7 +83,7 @@ export function BillSummaryBar({ bill, onSplitOpen }: BillSummaryBarProps) {
               <>
                 {isSplitting && (
                   <div className="flex items-center justify-between text-sm text-muted">
-                    <span>Your share</span>
+                    <span>{t("yourShare")}</span>
                     <CurrencyDisplay
                       amount={payableAmount}
                       currency={bill.currency}
@@ -95,7 +93,7 @@ export function BillSummaryBar({ bill, onSplitOpen }: BillSummaryBarProps) {
                 )}
                 <div className="animate-fade-in-up flex items-center justify-between text-sm text-muted">
                   <span>
-                    Tip
+                    {t("tip")}
                     {tip.percentage !== null && (
                       <span className="ml-1 text-xs">({tip.percentage}%)</span>
                     )}
@@ -104,7 +102,7 @@ export function BillSummaryBar({ bill, onSplitOpen }: BillSummaryBarProps) {
                     amount={tip.amount}
                     currency={bill.currency}
                     size="sm"
-                    className={tip.amount > 0 ? "text-primary-600" : ""}
+                    className={tip.amount > 0 ? "text-currency" : ""}
                   />
                 </div>
               </>
@@ -116,20 +114,20 @@ export function BillSummaryBar({ bill, onSplitOpen }: BillSummaryBarProps) {
         {/* Total */}
         {step === "payment" ? (
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted">Total</span>
-            <CurrencyDisplay
+            <span className="text-sm text-muted">{t("total")}</span>
+            <AnimatedCurrency
               amount={grandTotal}
               currency={bill.currency}
               size="lg"
-              className="text-primary-600"
+              className="text-currency"
             />
           </div>
         ) : (
           <div className="flex items-center justify-between">
             <span className="text-base font-semibold text-foreground">
-              {isSplitting && step !== "bill" ? "You pay" : "Total"}
+              {isSplitting && step !== "bill" ? t("youPay") : t("total")}
             </span>
-            <CurrencyDisplay
+            <AnimatedCurrency
               amount={
                 step === "tip"
                   ? grandTotal
@@ -139,7 +137,7 @@ export function BillSummaryBar({ bill, onSplitOpen }: BillSummaryBarProps) {
               }
               currency={bill.currency}
               size="lg"
-              className="text-primary-600"
+              className="text-currency"
             />
           </div>
         )}
@@ -156,14 +154,10 @@ export function BillSummaryBar({ bill, onSplitOpen }: BillSummaryBarProps) {
                 onSplitOpen?.();
               }}
             >
-              Split the bill
+              {t("splitTheBill")}
             </Button>
-            <Button
-              size="lg"
-              className="flex-1"
-              onClick={() => setStep("tip")}
-            >
-              Pay full bill
+            <Button size="lg" className="flex-1" onClick={() => setStep("tip")}>
+              {t("payFullBill")}
             </Button>
           </div>
         )}
@@ -178,7 +172,7 @@ export function BillSummaryBar({ bill, onSplitOpen }: BillSummaryBarProps) {
               setStep("bill");
             }}
           >
-            Back to bill
+            {t("backToBill")}
           </Button>
         )}
 
@@ -188,7 +182,7 @@ export function BillSummaryBar({ bill, onSplitOpen }: BillSummaryBarProps) {
             className="mt-2 w-full"
             onClick={() => setStep("payment")}
           >
-            Pay{" "}
+            {t("pay")}{" "}
             <CurrencyDisplay
               amount={grandTotal}
               currency={bill.currency}
@@ -205,7 +199,7 @@ export function BillSummaryBar({ bill, onSplitOpen }: BillSummaryBarProps) {
             className="mt-1 w-full"
             onClick={() => setStep("tip")}
           >
-            Back to tip
+            {t("backToTip")}
           </Button>
         )}
       </div>

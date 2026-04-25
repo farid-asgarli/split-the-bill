@@ -1,9 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import type { Bill, Restaurant } from "@/types/bill";
 import { useCheckout } from "@/hooks/use-checkout";
+import { useI18n } from "@/hooks/use-i18n";
 import { Button, Card, CurrencyDisplay, Divider, Input } from "@/components/ui";
+import { NpsSurvey } from "./nps-survey";
+import { SocialShare } from "./social-share";
+import { LoyaltyCard } from "./loyalty-card";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5062";
 
 interface PaymentConfirmationProps {
   bill: Bill;
@@ -15,6 +21,7 @@ export function PaymentConfirmation({
   restaurant,
 }: PaymentConfirmationProps) {
   const { tip, grandTotal, payment, reset } = useCheckout();
+  const { t } = useI18n();
   const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
   const [emailError, setEmailError] = useState("");
@@ -28,22 +35,43 @@ export function PaymentConfirmation({
 
   function handleSendReceipt() {
     if (!email) {
-      setEmailError("Please enter your email");
+      setEmailError(t("pleaseEnterEmail"));
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setEmailError("Please enter a valid email");
+      setEmailError(t("pleaseEnterValidEmail"));
       return;
     }
     setEmailError("");
     setEmailSent(true);
   }
 
-  const googleReviewUrl = `https://search.google.com/local/writereview?placeid=${restaurant.id}`;
+  const handleNpsSubmit = useCallback(
+    async (rating: number, comment?: string) => {
+      try {
+        await fetch(`${API_BASE}/api/engagement/nps`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            paymentId: "00000000-0000-0000-0000-000000000000", // placeholder until real payment ID is available
+            rating,
+            comment,
+          }),
+        });
+      } catch {
+        // silently fail - NPS is non-critical
+      }
+    },
+    []
+  );
+
+  const googleReviewUrl = restaurant.googlePlaceId
+    ? `https://search.google.com/local/writereview?placeid=${restaurant.googlePlaceId}`
+    : null;
 
   return (
     <section
-      className="animate-fade-in-up px-4 pt-6"
+      className="animate-fade-in-up px-4 pt-6 pb-8"
       aria-label="Payment confirmed"
       aria-live="assertive"
     >
@@ -74,24 +102,22 @@ export function PaymentConfirmation({
         </div>
 
         <h2 className="mb-1 text-xl font-semibold text-foreground">
-          Payment successful
+          {t("paymentSuccessful")}
         </h2>
-        <p className="text-sm text-muted">
-          Paid via {paymentMethodLabel}
-        </p>
+        <p className="text-sm text-muted">{t("paidVia")} {paymentMethodLabel}</p>
       </Card>
 
       {/* Payment summary */}
       <Card className="mt-3 p-4">
         <h3 className="mb-3 text-sm font-semibold text-foreground">
-          Payment summary
+          {t("paymentSummary")}
         </h3>
 
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm text-muted">
             <span>
-              Subtotal ({bill.items.length}{" "}
-              {bill.items.length === 1 ? "item" : "items"})
+              {t("subtotal")} ({bill.items.length}{" "}
+              {bill.items.length === 1 ? t("item") : t("items")})
             </span>
             <CurrencyDisplay
               amount={bill.subtotal}
@@ -121,7 +147,7 @@ export function PaymentConfirmation({
           {tip.amount > 0 && (
             <div className="flex items-center justify-between text-sm text-muted">
               <span>
-                Tip
+                {t("tip")}
                 {tip.percentage !== null && (
                   <span className="ml-1 text-xs">({tip.percentage}%)</span>
                 )}
@@ -130,7 +156,7 @@ export function PaymentConfirmation({
                 amount={tip.amount}
                 currency={bill.currency}
                 size="sm"
-                className="text-primary-600"
+                className="text-currency"
               />
             </div>
           )}
@@ -139,13 +165,13 @@ export function PaymentConfirmation({
 
           <div className="flex items-center justify-between">
             <span className="text-base font-semibold text-foreground">
-              Total paid
+              {t("totalPaid")}
             </span>
             <CurrencyDisplay
               amount={grandTotal}
               currency={bill.currency}
               size="lg"
-              className="text-primary-600"
+              className="text-currency"
             />
           </div>
         </div>
@@ -154,12 +180,12 @@ export function PaymentConfirmation({
       {/* Email receipt */}
       <Card className="mt-3 p-4">
         <h3 className="mb-3 text-sm font-semibold text-foreground">
-          Email receipt
+          {t("emailReceipt")}
         </h3>
 
         {emailSent ? (
           <p className="text-sm text-success" role="status">
-            Receipt sent to {email}
+            {t("receiptSentTo")} {email}
           </p>
         ) : (
           <div className="flex gap-2">
@@ -183,38 +209,59 @@ export function PaymentConfirmation({
               onClick={handleSendReceipt}
               className="mt-0 h-10 shrink-0"
             >
-              Send
+              {t("send")}
             </Button>
           </div>
         )}
       </Card>
 
-      {/* Leave a review */}
-      <Card className="mt-3 p-4 text-center">
-        <p className="mb-2 text-sm text-muted">
-          Enjoyed your experience at {restaurant.name}?
-        </p>
-        <a
-          href={googleReviewUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-primary-600 transition-colors hover:text-primary-700"
-        >
-          Leave a review
-          <svg
-            viewBox="0 0 16 16"
-            className="h-3.5 w-3.5"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
+      {/* NPS Survey */}
+      <NpsSurvey
+        restaurantName={restaurant.name}
+        onSubmit={handleNpsSubmit}
+      />
+
+      {/* Google Review link */}
+      {googleReviewUrl && (
+        <Card className="mt-3 p-4 text-center">
+          <p className="mb-2 text-sm text-muted">
+            {t("enjoyedExperience")} {restaurant.name}?
+          </p>
+          <a
+            href={googleReviewUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-[44px] items-center gap-1.5 text-sm font-medium text-primary-700 transition-colors hover:text-primary-800"
           >
-            <path d="M4 12 L12 4 M12 4 L5 4 M12 4 L12 11" />
-          </svg>
-        </a>
-      </Card>
+            {t("leaveGoogleReview")}
+            <svg
+              viewBox="0 0 16 16"
+              className="h-3.5 w-3.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M4 12 L12 4 M12 4 L5 4 M12 4 L12 11" />
+            </svg>
+          </a>
+        </Card>
+      )}
+
+      {/* Social sharing */}
+      <SocialShare
+        amount={grandTotal}
+        currency={bill.currency}
+        restaurantName={restaurant.name}
+      />
+
+      {/* Loyalty program */}
+      <LoyaltyCard
+        restaurantId={restaurant.id}
+        restaurantName={restaurant.name}
+      />
 
       {/* Done button */}
       <Button
@@ -223,7 +270,7 @@ export function PaymentConfirmation({
         className="mt-4 w-full"
         onClick={reset}
       >
-        Done
+        {t("done")}
       </Button>
     </section>
   );

@@ -9,25 +9,74 @@ interface BottomSheetProps {
   children: ReactNode;
 }
 
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 function BottomSheet({ open, onClose, title, children }: BottomSheetProps) {
   const sheetRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<Element | null>(null);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+
+      // Focus trap
+      if (e.key === "Tab" && sheetRef.current) {
+        const focusable = sheetRef.current.querySelectorAll(FOCUSABLE_SELECTOR);
+        if (focusable.length === 0) return;
+
+        const first = focusable[0] as HTMLElement;
+        const last = focusable[focusable.length - 1] as HTMLElement;
+
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     },
     [onClose]
   );
 
   useEffect(() => {
     if (open) {
+      // Remember the element that triggered the sheet
+      triggerRef.current = document.activeElement;
+
       document.addEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "hidden";
+
+      // Focus the first focusable element inside the sheet
+      const timer = setTimeout(() => {
+        if (sheetRef.current) {
+          const first = sheetRef.current.querySelector(
+            FOCUSABLE_SELECTOR
+          ) as HTMLElement | null;
+          if (first) {
+            first.focus();
+          } else {
+            sheetRef.current.focus();
+          }
+        }
+      }, 100);
+
+      return () => {
+        clearTimeout(timer);
+        document.removeEventListener("keydown", handleKeyDown);
+        document.body.style.overflow = "";
+      };
+    } else {
+      // Restore focus to the trigger element
+      if (triggerRef.current && triggerRef.current instanceof HTMLElement) {
+        triggerRef.current.focus();
+        triggerRef.current = null;
+      }
     }
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "";
-    };
   }, [open, handleKeyDown]);
 
   if (!open) return null;
@@ -47,11 +96,12 @@ function BottomSheet({ open, onClose, title, children }: BottomSheetProps) {
         role="dialog"
         aria-modal="true"
         aria-label={title}
+        tabIndex={-1}
         className="
           relative z-10 w-full max-w-lg
           animate-slide-up
           rounded-t-2xl bg-surface
-          pb-safe
+          pb-safe outline-none
         "
       >
         {/* Drag handle */}

@@ -3,13 +3,14 @@
 import { useState, useRef, useEffect } from "react";
 import type { Bill, PaymentMethod } from "@/types/bill";
 import { useCheckout } from "@/hooks/use-checkout";
+import { useI18n } from "@/hooks/use-i18n";
 import {
   Button,
   Card,
   Input,
   CurrencyDisplay,
+  AnimatedCurrency,
   Divider,
-  BottomSheet,
 } from "@/components/ui";
 import { PaymentProcessing } from "./payment-processing";
 
@@ -18,8 +19,9 @@ interface PaymentScreenProps {
 }
 
 export function PaymentScreen({ bill }: PaymentScreenProps) {
-  const { grandTotal, payment, startPayment } = useCheckout();
-  const [cardSheetOpen, setCardSheetOpen] = useState(false);
+  const { grandTotal, payment, startPayment, resetPayment } = useCheckout();
+  const { t } = useI18n();
+  const [showCardForm, setShowCardForm] = useState(false);
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvc, setCvc] = useState("");
@@ -27,14 +29,63 @@ export function PaymentScreen({ bill }: PaymentScreenProps) {
   const cardInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (cardSheetOpen) {
-      const timer = setTimeout(() => cardInputRef.current?.focus(), 300);
+    if (showCardForm) {
+      const timer = setTimeout(() => cardInputRef.current?.focus(), 150);
       return () => clearTimeout(timer);
     }
-  }, [cardSheetOpen]);
+  }, [showCardForm]);
 
   if (payment.status === "processing") {
     return <PaymentProcessing />;
+  }
+
+  if (payment.status === "error") {
+    return (
+      <section className="animate-fade-in-up px-4 pt-6" aria-label="Payment error">
+        <Card elevated className="p-6 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-error/10">
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="var(--color-error)"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="15" y1="9" x2="9" y2="15" />
+              <line x1="9" y1="9" x2="15" y2="15" />
+            </svg>
+          </div>
+          <h2 className="mb-1 text-lg font-semibold text-foreground">
+            {t("paymentFailed")}
+          </h2>
+          <p className="mb-5 text-sm text-muted">
+            {payment.errorMessage || t("somethingWentWrong")}
+          </p>
+          <div className="space-y-3">
+            <Button
+              size="lg"
+              className="w-full"
+              onClick={() => startPayment(payment.method!)}
+            >
+              {t("tryAgain")}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full"
+              onClick={resetPayment}
+            >
+              {t("useDifferentMethod")}
+            </Button>
+          </div>
+        </Card>
+      </section>
+    );
   }
 
   function formatCardNumber(value: string): string {
@@ -54,7 +105,7 @@ export function PaymentScreen({ bill }: PaymentScreenProps) {
     const errors: Record<string, string> = {};
     const digits = cardNumber.replace(/\s/g, "");
     if (digits.length < 13 || digits.length > 16) {
-      errors.cardNumber = "Enter a valid card number";
+      errors.cardNumber = t("enterValidCard");
     }
     const expiryDigits = expiry.replace("/", "");
     if (expiryDigits.length !== 4) {
@@ -69,7 +120,6 @@ export function PaymentScreen({ bill }: PaymentScreenProps) {
 
   function handleCardPay() {
     if (!validateCard()) return;
-    setCardSheetOpen(false);
     startPayment("card");
   }
 
@@ -81,12 +131,12 @@ export function PaymentScreen({ bill }: PaymentScreenProps) {
     <section className="animate-fade-in-up px-4 pt-6" aria-label="Payment">
       {/* Grand total */}
       <Card elevated className="mb-6 p-6 text-center">
-        <p className="mb-1 text-sm text-muted">Total to pay</p>
-        <CurrencyDisplay
+        <p className="mb-1 text-sm text-muted">{t("totalToPay")}</p>
+        <AnimatedCurrency
           amount={grandTotal}
           currency={bill.currency}
           size="xl"
-          className="text-primary-600"
+          className="text-currency"
         />
       </Card>
 
@@ -113,7 +163,7 @@ export function PaymentScreen({ bill }: PaymentScreenProps) {
           >
             <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
           </svg>
-          <span className="text-base font-medium">Pay</span>
+          <span className="text-base font-medium">{t("pay")}</span>
         </button>
 
         {/* Google Pay */}
@@ -148,71 +198,71 @@ export function PaymentScreen({ bill }: PaymentScreenProps) {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
             />
           </svg>
-          <span className="text-base font-medium text-foreground">Pay</span>
+          <span className="text-base font-medium text-foreground">{t("pay")}</span>
         </button>
       </div>
 
       {/* Card option */}
-      <Divider className="my-6" label="or pay with card" />
+      <Divider className="my-6" label={t("orPayWithCard")} />
 
-      <Button
-        variant="secondary"
-        size="lg"
-        className="w-full"
-        onClick={() => setCardSheetOpen(true)}
-      >
-        Credit or debit card
-      </Button>
-
-      {/* Card form bottom sheet */}
-      <BottomSheet
-        open={cardSheetOpen}
-        onClose={() => setCardSheetOpen(false)}
-        title="Card details"
-      >
-        <div className="space-y-4">
-          <Input
-            ref={cardInputRef}
-            label="Card number"
-            inputMode="numeric"
-            maxLength={19}
-            placeholder="1234 5678 9012 3456"
-            value={cardNumber}
-            onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
-            error={cardErrors.cardNumber}
-          />
-          <div className="grid grid-cols-2 gap-3">
+      {!showCardForm ? (
+        <Button
+          variant="secondary"
+          size="lg"
+          className="w-full"
+          onClick={() => setShowCardForm(true)}
+        >
+          {t("creditOrDebitCard")}
+        </Button>
+      ) : (
+        <Card className="animate-fade-in-up p-5">
+          <h3 className="mb-4 text-base font-semibold text-foreground">
+            {t("cardDetails")}
+          </h3>
+          <div className="space-y-4">
             <Input
-              label="Expiry"
+              ref={cardInputRef}
+              label={t("cardNumber")}
               inputMode="numeric"
-              maxLength={5}
-              placeholder="MM/YY"
-              value={expiry}
-              onChange={(e) => setExpiry(formatExpiry(e.target.value))}
-              error={cardErrors.expiry}
+              maxLength={19}
+              placeholder="1234 5678 9012 3456"
+              value={cardNumber}
+              onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
+              error={cardErrors.cardNumber}
             />
-            <Input
-              label="CVC"
-              inputMode="numeric"
-              maxLength={4}
-              placeholder="123"
-              value={cvc}
-              onChange={(e) =>
-                setCvc(e.target.value.replace(/\D/g, "").slice(0, 4))
-              }
-              error={cardErrors.cvc}
-            />
+            <div className="grid grid-cols-2 gap-3">
+              <Input
+                label={t("expiry")}
+                inputMode="numeric"
+                maxLength={5}
+                placeholder="MM/YY"
+                value={expiry}
+                onChange={(e) => setExpiry(formatExpiry(e.target.value))}
+                error={cardErrors.expiry}
+              />
+              <Input
+                label={t("cvc")}
+                inputMode="numeric"
+                maxLength={4}
+                placeholder="123"
+                value={cvc}
+                onChange={(e) =>
+                  setCvc(e.target.value.replace(/\D/g, "").slice(0, 4))
+                }
+                error={cardErrors.cvc}
+              />
+            </div>
+            <Button size="lg" className="w-full" onClick={handleCardPay}>
+              {t("pay")}{" "}
+              <CurrencyDisplay
+                amount={grandTotal}
+                currency={bill.currency}
+                size="sm"
+              />
+            </Button>
           </div>
-          <Button size="lg" className="w-full" onClick={handleCardPay}>
-            Pay{" "}
-            <CurrencyDisplay
-              amount={grandTotal}
-              currency={bill.currency}
-              size="sm"
-            />
-          </Button>
-        </div>
-      </BottomSheet>
+        </Card>
+      )}
     </section>
   );
 }

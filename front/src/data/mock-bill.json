@@ -3,7 +3,7 @@
     "id": "rst_01",
     "name": "The Amber Room",
     "logo": "/mock/restaurant-logo.png",
-    "address": "42 Marine Drive, Mumbai 400002"
+    "address": "12 Neftçilər prospekti, Bakı 1001"
   },
   "table": {
     "id": "tbl_07",
@@ -14,7 +14,7 @@
     "id": "bill_20260425_007",
     "status": "open",
     "createdAt": "2026-04-25T19:30:00Z",
-    "currency": "INR",
+    "currency": "AZN",
     "items": [
       {
         "id": "item_01",
@@ -99,13 +99,13 @@
     ],
     "subtotal": 11100,
     "tax": {
-      "label": "GST (5%)",
+      "label": "ƏDV (5%)",
       "rate": 0.05,
       "amount": 555
     },
     "serviceCharge": {
-      "label": "Service charge (10%)",
-      "rate": 0.10,
+      "label": "Xidmət haqqı (10%)",
+      "rate": 0.1,
       "amount": 1110
     },
     "total": 12765,

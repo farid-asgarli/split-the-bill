@@ -2,18 +2,20 @@
 
 import type { SplitMode } from "@/types/bill";
 import { useCheckout } from "@/hooks/use-checkout";
+import { useI18n } from "@/hooks/use-i18n";
 import { BottomSheet } from "@/components/ui";
+import type { TranslationKey } from "@/i18n";
 
 const SPLIT_OPTIONS: {
   mode: SplitMode;
-  title: string;
-  description: string;
+  titleKey: TranslationKey;
+  descriptionKey: TranslationKey;
   icon: React.ReactNode;
 }[] = [
   {
     mode: "equal",
-    title: "Split equally",
-    description: "Divide evenly between everyone",
+    titleKey: "splitEqually",
+    descriptionKey: "divideEvenly",
     icon: (
       <svg
         width="24"
@@ -35,8 +37,8 @@ const SPLIT_OPTIONS: {
   },
   {
     mode: "by_item",
-    title: "Split by item",
-    description: "Each person picks what they had",
+    titleKey: "splitByItem",
+    descriptionKey: "eachPersonPicks",
     icon: (
       <svg
         width="24"
@@ -58,8 +60,8 @@ const SPLIT_OPTIONS: {
   },
   {
     mode: "custom",
-    title: "Custom amounts",
-    description: "Enter how much each person pays",
+    titleKey: "customAmounts",
+    descriptionKey: "enterHowMuch",
     icon: (
       <svg
         width="24"
@@ -86,6 +88,7 @@ interface SplitModeSelectorProps {
 
 export function SplitModeSelector({ open, onClose }: SplitModeSelectorProps) {
   const { setSplitMode } = useCheckout();
+  const { t } = useI18n();
 
   function handleSelect(mode: SplitMode) {
     setSplitMode(mode);
@@ -93,7 +96,7 @@ export function SplitModeSelector({ open, onClose }: SplitModeSelectorProps) {
   }
 
   return (
-    <BottomSheet open={open} onClose={onClose} title="Split the bill">
+    <BottomSheet open={open} onClose={onClose} title={t("splitTheBill")}>
       <div className="space-y-3" role="list" aria-label="Split options">
         {SPLIT_OPTIONS.map((option) => (
           <button
@@ -119,9 +122,9 @@ export function SplitModeSelector({ open, onClose }: SplitModeSelectorProps) {
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-[15px] font-medium text-foreground">
-                {option.title}
+                {t(option.titleKey)}
               </p>
-              <p className="text-sm text-muted">{option.description}</p>
+              <p className="text-sm text-muted">{t(option.descriptionKey)}</p>
             </div>
             <svg
               width="20"

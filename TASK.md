@@ -152,7 +152,7 @@ QR Scan → Instant Bill View → [Optional: Split] → Tip → Pay → Confirma
 ### 2.5 Multi-Payer Session Management
 
 - [ ] When one person pays, the bill updates for subsequent scanners
-- [ ] Show: "₹X paid · ₹Y remaining" status bar
+- [ ] Show: "₼X paid · ₼Y remaining" status bar
 - [ ] Paid items visually grayed out or marked with a check
 - [ ] Final payer sees only the remaining balance
 - [ ] Handle race conditions: lock items during payment processing
@@ -236,7 +236,7 @@ QR Scan → Instant Bill View → [Optional: Split] → Tip → Pay → Confirma
 
 - [ ] Google Review prompt (deep link to restaurant's Google listing)
 - [ ] NPS survey (1-question: "How was your experience?")
-- [ ] Social sharing: "I just split a ₹X bill in 10 seconds" (organic marketing)
+- [ ] Social sharing: "I just split a ₼X bill in 10 seconds" (organic marketing)
 
 ### 5.2 Loyalty & Rewards (v2)
 

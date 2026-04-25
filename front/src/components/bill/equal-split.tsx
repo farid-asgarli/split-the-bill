@@ -2,6 +2,7 @@
 
 import type { Bill } from "@/types/bill";
 import { useCheckout } from "@/hooks/use-checkout";
+import { useI18n } from "@/hooks/use-i18n";
 import { CurrencyDisplay, Button } from "@/components/ui";
 import { calculateEqualShare } from "@/lib/split";
 
@@ -13,14 +14,12 @@ const QUICK_COUNTS = [2, 3, 4, 5, 6];
 
 export function EqualSplit({ bill }: EqualSplitProps) {
   const { split, setEqualHeadCount, setStep, clearSplit } = useCheckout();
+  const { t } = useI18n();
 
   if (split.mode !== "equal") return null;
 
   const { headCount } = split;
-  const { perPerson, lastPerson } = calculateEqualShare(
-    bill.total,
-    headCount
-  );
+  const { perPerson, lastPerson } = calculateEqualShare(bill.total, headCount);
   const hasRounding = perPerson !== lastPerson;
 
   function handleDecrement() {
@@ -32,15 +31,12 @@ export function EqualSplit({ bill }: EqualSplitProps) {
   }
 
   return (
-    <section
-      className="animate-fade-in-up px-4 pt-6"
-      aria-label="Equal split"
-    >
+    <section className="animate-fade-in-up px-4 pt-6" aria-label="Equal split">
       {/* Back link */}
       <button
         type="button"
         onClick={() => clearSplit()}
-        className="mb-4 flex items-center gap-1 text-sm text-muted transition-colors hover:text-foreground"
+        className="mb-4 flex min-h-[44px] items-center gap-1 text-sm text-muted transition-colors hover:text-foreground"
       >
         <svg
           width="16"
@@ -55,15 +51,13 @@ export function EqualSplit({ bill }: EqualSplitProps) {
         >
           <path d="m15 18-6-6 6-6" />
         </svg>
-        Change split method
+        {t("changeSplitMethod")}
       </button>
 
       <h2 className="mb-1 text-lg font-semibold text-foreground">
-        Split equally
+        {t("splitEqually")}
       </h2>
-      <p className="mb-6 text-sm text-muted">
-        How many people are splitting?
-      </p>
+      <p className="mb-6 text-sm text-muted">{t("howManyPeople")}</p>
 
       {/* Quick-select chips */}
       <div
@@ -126,7 +120,7 @@ export function EqualSplit({ bill }: EqualSplitProps) {
           >
             {headCount}
           </span>
-          <span className="text-sm text-muted">people</span>
+          <span className="text-sm text-muted">{t("people")}</span>
         </div>
 
         <button
@@ -149,38 +143,32 @@ export function EqualSplit({ bill }: EqualSplitProps) {
 
       {/* Per-person amount */}
       <div className="mb-4 rounded-rounded border border-border bg-surface p-5 text-center">
-        <p className="mb-1 text-sm text-muted">Your share</p>
+        <p className="mb-1 text-sm text-muted">{t("yourShare")}</p>
         <CurrencyDisplay
           amount={perPerson}
           currency={bill.currency}
           size="xl"
-          className="text-primary-600"
+          className="text-currency"
         />
-        <p className="mt-1 text-sm text-muted">
-          1 of {headCount}
-        </p>
+        <p className="mt-1 text-sm text-muted">1 {t("of")} {headCount}</p>
 
         {hasRounding && (
           <p className="mt-3 text-xs text-muted">
-            Last person pays{" "}
+            {t("lastPersonPays")}{" "}
             <CurrencyDisplay
               amount={lastPerson}
               currency={bill.currency}
               size="sm"
               className="font-medium text-foreground"
             />{" "}
-            to cover rounding
+            {t("toCoverRounding")}
           </p>
         )}
       </div>
 
       {/* CTA */}
-      <Button
-        size="lg"
-        className="w-full"
-        onClick={() => setStep("tip")}
-      >
-        Pay your share
+      <Button size="lg" className="w-full" onClick={() => setStep("tip")}>
+        {t("payYourShare")}
       </Button>
     </section>
   );

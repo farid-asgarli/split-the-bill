@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import type { Bill, TipOption } from "@/types/bill";
 import { TIP_PRESETS, calculateTipAmount } from "@/lib/tip";
 import { useCheckout } from "@/hooks/use-checkout";
+import { useI18n } from "@/hooks/use-i18n";
 import { CurrencyDisplay, BottomSheet, Button, Input } from "@/components/ui";
 
 interface TipSelectorProps {
@@ -12,6 +13,7 @@ interface TipSelectorProps {
 
 export function TipSelector({ bill }: TipSelectorProps) {
   const { tip, selectTip, setCustomTip } = useCheckout();
+  const { t } = useI18n();
   const [customSheetOpen, setCustomSheetOpen] = useState(false);
   const [customValue, setCustomValue] = useState("");
   const customInputRef = useRef<HTMLInputElement>(null);
@@ -48,10 +50,10 @@ export function TipSelector({ bill }: TipSelectorProps) {
       className="animate-fade-in-up px-4 pt-6"
       aria-label="Tip selection"
     >
-      <h2 className="mb-1 text-lg font-semibold text-foreground">Add a tip</h2>
-      <p className="mb-4 text-sm text-muted">
-        Your tip is calculated on the subtotal
-      </p>
+      <h2 className="mb-1 text-lg font-semibold text-foreground">
+        {t("addATip")}
+      </h2>
+      <p className="mb-4 text-sm text-muted">{t("tipCalculatedOnSubtotal")}</p>
 
       {/* Preset options */}
       <div
@@ -122,7 +124,7 @@ export function TipSelector({ bill }: TipSelectorProps) {
           onClick={() => selectTip("none")}
           className={`text-muted ${tip.option === "none" ? "text-foreground" : ""}`}
         >
-          No tip
+          {t("noTip")}
         </Button>
       </div>
 
@@ -130,12 +132,12 @@ export function TipSelector({ bill }: TipSelectorProps) {
       <BottomSheet
         open={customSheetOpen}
         onClose={() => setCustomSheetOpen(false)}
-        title="Custom tip"
+        title={t("customTip")}
       >
         <div className="space-y-4">
           <Input
             ref={customInputRef}
-            label="Tip amount"
+            label={t("tipAmount")}
             type="number"
             inputMode="numeric"
             pattern="[0-9]*"
@@ -148,7 +150,7 @@ export function TipSelector({ bill }: TipSelectorProps) {
             }}
           />
           <Button size="lg" className="w-full" onClick={handleCustomDone}>
-            Done
+            {t("done")}
           </Button>
         </div>
       </BottomSheet>

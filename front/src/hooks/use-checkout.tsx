@@ -165,7 +165,12 @@ function checkoutReducer(
       const myShare = calculateItemShare(action.bill, claimed, shared);
       return {
         ...state,
-        split: { mode: "by_item", claimedItemIds: claimed, sharedItemIds: shared, myShare },
+        split: {
+          mode: "by_item",
+          claimedItemIds: claimed,
+          sharedItemIds: shared,
+          myShare,
+        },
       };
     }
 
@@ -182,7 +187,12 @@ function checkoutReducer(
       const myShare = calculateItemShare(action.bill, claimed, shared);
       return {
         ...state,
-        split: { mode: "by_item", claimedItemIds: claimed, sharedItemIds: shared, myShare },
+        split: {
+          mode: "by_item",
+          claimedItemIds: claimed,
+          sharedItemIds: shared,
+          myShare,
+        },
       };
     }
 
@@ -255,6 +265,7 @@ interface CheckoutContextValue {
   toggleSharedItem: (itemId: string) => void;
   setCustomAmount: (amount: number) => void;
   clearSplit: () => void;
+  resetPayment: () => void;
   reset: () => void;
 }
 
@@ -307,10 +318,20 @@ export function CheckoutProvider({ bill, children }: CheckoutProviderProps) {
     dispatch({ type: "SET_PAYMENT_METHOD", method });
     dispatch({ type: "SET_PAYMENT_STATUS", status: "processing" });
 
-    // Simulate payment processing
+    // Simulate payment processing (with occasional failure for demo)
     setTimeout(() => {
-      dispatch({ type: "SET_PAYMENT_STATUS", status: "success" });
-      dispatch({ type: "SET_STEP", step: "confirmation" });
+      // In production, this would call a real payment API
+      const success = Math.random() > 0.15; // ~15% simulated failure rate
+      if (success) {
+        dispatch({ type: "SET_PAYMENT_STATUS", status: "success" });
+        dispatch({ type: "SET_STEP", step: "confirmation" });
+      } else {
+        dispatch({
+          type: "SET_PAYMENT_STATUS",
+          status: "error",
+          errorMessage: "Payment could not be processed. Please try again.",
+        });
+      }
     }, 2000);
   }, []);
 
@@ -351,8 +372,10 @@ export function CheckoutProvider({ bill, children }: CheckoutProviderProps) {
     []
   );
 
-  const clearSplit = useCallback(
-    () => dispatch({ type: "CLEAR_SPLIT" }),
+  const clearSplit = useCallback(() => dispatch({ type: "CLEAR_SPLIT" }), []);
+
+  const resetPayment = useCallback(
+    () => dispatch({ type: "SET_PAYMENT_STATUS", status: "idle" }),
     []
   );
 
@@ -388,6 +411,7 @@ export function CheckoutProvider({ bill, children }: CheckoutProviderProps) {
         toggleSharedItem,
         setCustomAmount,
         clearSplit,
+        resetPayment,
         reset,
       }}
     >

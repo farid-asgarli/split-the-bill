@@ -6,7 +6,7 @@ function Skeleton({ className = "" }: SkeletonProps) {
   return (
     <div
       aria-hidden="true"
-      className={`animate-pulse rounded-soft bg-border/50 ${className}`}
+      className={`skeleton-shimmer rounded-soft ${className}`}
     />
   );
 }

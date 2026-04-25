@@ -19,9 +19,9 @@ const variantStyles: Record<ButtonVariant, string> = {
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: "h-10 px-4 text-sm rounded-soft",
+  sm: "h-11 px-4 text-sm rounded-soft",
   md: "h-12 px-6 text-base rounded-rounded",
-  lg: "h-14 px-8 text-lg rounded-rounded",
+  lg: "h-14 px-6 text-[0.938rem] sm:px-8 sm:text-lg rounded-rounded",
 };
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -46,7 +46,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           font-medium
           transition-colors duration-150
           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
-          disabled:pointer-events-none disabled:opacity-50
+          disabled:pointer-events-none disabled:opacity-60
           ${variantStyles[variant]}
           ${sizeStyles[size]}
           ${className}

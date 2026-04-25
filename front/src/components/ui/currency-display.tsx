@@ -17,8 +17,8 @@ const sizeStyles: Record<string, string> = {
 
 function CurrencyDisplay({
   amount,
-  currency = "INR",
-  locale = "en-IN",
+  currency = "AZN",
+  locale = "az-AZ",
   size = "md",
   className = "",
 }: CurrencyDisplayProps) {
@@ -29,6 +29,7 @@ function CurrencyDisplay({
     <span
       className={`tabular-nums ${sizeStyles[size]} ${className}`}
       aria-label={announcement}
+      suppressHydrationWarning
     >
       {display}
     </span>

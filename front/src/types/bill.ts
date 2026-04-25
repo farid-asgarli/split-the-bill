@@ -35,6 +35,10 @@ export interface Bill {
   total: number;
   amountPaid: number;
   amountRemaining: number;
+  /** IDs of items already paid by previous payers */
+  paidItemIds?: string[];
+  /** Item IDs currently locked for payment processing */
+  lockedItemIds?: string[];
 }
 
 export interface Restaurant {
@@ -42,6 +46,7 @@ export interface Restaurant {
   name: string;
   logo: string;
   address: string;
+  googlePlaceId?: string;
 }
 
 export interface Table {
@@ -114,3 +119,35 @@ export type SplitState =
   | EqualSplitState
   | ItemSplitState
   | CustomSplitState;
+
+/* ── Engagement types ── */
+
+export interface NpsSubmission {
+  paymentId: string;
+  rating: number;
+  comment?: string;
+}
+
+export interface LoyaltyAccount {
+  id: string;
+  email: string;
+  name?: string;
+  totalPoints: number;
+  createdAt: string;
+  recentTransactions: LoyaltyTransaction[];
+}
+
+export interface LoyaltyTransaction {
+  id: string;
+  restaurantName: string;
+  points: number;
+  description: string;
+  createdAt: string;
+}
+
+export interface Reward {
+  id: string;
+  title: string;
+  description?: string;
+  pointsCost: number;
+}
