@@ -1,9 +1,10 @@
 FROM node:22-alpine AS base
+RUN corepack enable
 
 FROM base AS deps
 WORKDIR /app
 COPY package.json ./
-RUN npm install
+RUN yarn install
 
 FROM base AS builder
 WORKDIR /app
@@ -11,7 +12,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN npm run build
+RUN yarn build
 
 FROM base AS runner
 WORKDIR /app
